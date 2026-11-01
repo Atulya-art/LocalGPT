@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="LocalGPT - a private AI assistant running entirely on your computer with Ollama.">
+  <title>LocalGPT</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Conversations">
+      <div class="sidebar-head">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              <path d="M9 10.5h6M9 14h4"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>LocalGPT</h1>
+            <span>Private &middot; Offline</span>
+          </div>
+        </div>
+        <button class="icon-btn sidebar-close" id="sidebar-close" type="button" aria-label="Close sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <button class="new-chat" id="new-chat" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span>New chat</span>
+      </button>
+
+      <div class="sidebar-label">
+        <span>Conversations</span>
+        <span class="count" id="conversation-count">0</span>
+      </div>
+
+      <nav class="conversation-list" id="conversation-list" aria-label="Chat history"></nav>
+
+      <div class="sidebar-foot">
+        <div class="status-card" id="status-card" role="button" tabindex="0" aria-label="Refresh local AI status">
+          <span class="status-dot" id="status-dot" data-state="checking"></span>
+          <div class="status-text">
+            <strong id="status-text">Checking Ollama&hellip;</strong>
+            <span id="status-detail">Local AI runtime</span>
+          </div>
+          <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+        </div>
+        <p class="privacy-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          Everything stays on this device
+        </p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="chat-heading">
+          <h2 id="chat-title">New chat</h2>
+          <span id="chat-subtitle">Local model ready when you are</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="model-pill" id="model-pill" title="Active local model">
+            <span class="mini-dot" id="model-dot" data-state="checking"></span>
+            <span id="model-name">llama3.2:3b</span>
+          </div>
+          <button class="icon-btn" id="clear-chat" type="button" aria-label="Clear conversation" title="Clear conversation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="chat-scroll" id="chat-scroll">
+        <section class="welcome" id="welcome">
+          <div class="welcome-glow" aria-hidden="true"></div>
+          <div class="welcome-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              <path d="M8.5 10h7M8.5 13.5h4.5"/>
+            </svg>
+          </div>
+          <h2 class="welcome-title">How can I help you today?</h2>
+          <p class="welcome-sub">Your private AI assistant, running entirely on your computer. No cloud. No API keys. No data leaving this device.</p>
+          <div class="suggestions">
+            <button class="suggestion" type="button" data-prompt="Explain how large language models work, in simple terms.">
+              <span class="suggestion-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+              </span>
+              <span><strong>Explain a concept</strong><small>How do large language models work?</small></span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Write a Python function that reverses a string, and explain how it works.">
+              <span class="suggestion-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></svg>
+              </span>
+              <span><strong>Help with code</strong><small>Write and explain a Python function</small></span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Create a study plan to learn the basics of machine learning in four weeks.">
+              <span class="suggestion-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </span>
+              <span><strong>Plan my learning</strong><small>Build a four-week ML study plan</small></span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Give me three creative ideas for a weekend project using Python.">
+              <span class="suggestion-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+              </span>
+              <span><strong>Brainstorm ideas</strong><small>Three Python weekend projects</small></span>
+            </button>
+          </div>
+        </section>
+
+        <div class="messages" id="messages" aria-live="polite" aria-relevant="additions text"></div>
+      </div>
+
+      <div class="composer-wrap">
+        <form class="composer" id="composer" autocomplete="off">
+          <textarea id="input" name="message" rows="1" maxlength="32000" placeholder="Message LocalGPT&hellip;" aria-label="Message LocalGPT"></textarea>
+          <div class="composer-bar">
+            <span class="hint"><kbd>Enter</kbd> to send &middot; <kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line</span>
+            <div class="composer-buttons">
+              <button class="stop-btn" id="stop" type="button" hidden>
+                <span class="stop-square" aria-hidden="true"></span>
+                Stop
+              </button>
+              <button class="send-btn" id="send" type="submit" aria-label="Send message" title="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+        <p class="disclaimer">LocalGPT can make mistakes. It runs fully offline on your machine.</p>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="assertive"></div>
+
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-icon" id="modal-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </div>
+      <h3 id="modal-title">Are you sure?</h3>
+      <p id="modal-text">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="modal-cancel" type="button">Cancel</button>
+        <button class="btn danger" id="modal-confirm" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local database (created automatically)
+database/*.db
+database/*.db-wal
+database/*.db-shm
+database/*.sqlite
+database/*.sqlite3
+!database/.gitkeep
+
+# Logs and local runtime files
+*.log
+*.log.*
+.server.pid
+.chrome.pid
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Environment overrides
+.env
+.env.*
