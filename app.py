@@ -18,6 +18,16 @@ from backend.chatbot import ChatBot
 from backend.conversation import ConversationNotFound, ConversationService
 from backend.database import Database
 from backend.ollama_client import OllamaClient, OllamaError
+from backend.time_engine import format_datetime, get_current_datetime
+try:
+    from backend.web_search import WebSearch
+except Exception:
+    class WebSearch:
+        def __init__(self, enabled=False):
+            self.enabled = enabled
+
+        def is_available(self):
+            return False
 
 
 def _sse(event: str, data: dict[str, Any]) -> str:
@@ -80,13 +90,18 @@ def create_app() -> Flask:
         system_prompt=config.SYSTEM_PROMPT,
         context_char_budget=config.CONTEXT_CHAR_BUDGET,
         max_message_chars=config.MAX_MESSAGE_CHARS,
+        timezone=config.TIMEZONE,
+        location=config.LOCATION,
+        enable_web_search=config.ENABLE_WEB_SEARCH,
     )
+    web_search = WebSearch(enabled=config.ENABLE_WEB_SEARCH)
 
     app.extensions["localgpt"] = {
         "db": database,
         "conversations": conversations,
         "ollama": ollama,
         "chatbot": chatbot,
+        "web_search": web_search,
     }
 
     # -- security headers / local-only guard --------------------------------
@@ -169,6 +184,10 @@ def create_app() -> Flask:
 
     @app.get("/api/config")
     def api_config():
+        try:
+            dt_info = format_datetime(get_current_datetime(config.TIMEZONE))
+        except Exception:
+            dt_info = {}
         return jsonify(
             {
                 "model": config.OLLAMA_MODEL,
@@ -179,8 +198,21 @@ def create_app() -> Flask:
                 "top_p": config.TOP_P,
                 "repeat_penalty": config.REPEAT_PENALTY,
                 "system_prompt": config.SYSTEM_PROMPT,
+                "timezone": config.TIMEZONE,
+                "location": config.LOCATION,
+                "web_search_enabled": config.ENABLE_WEB_SEARCH,
+                "web_search_available": web_search.is_available() if web_search else False,
+                "realtime": dt_info,
             }
         )
+
+    @app.get("/api/time")
+    def api_time():
+        try:
+            dt_info = format_datetime(get_current_datetime(config.TIMEZONE))
+            return jsonify({"ok": True, **dt_info, "location": config.LOCATION})
+        except Exception as e:
+            return _json_error(str(e), 500, "time_error")
 
     @app.get("/api/health")
     def api_health():

@@ -51,6 +51,13 @@ MAX_TITLE_CHARS = 60
 # Reserve room for the reply and the system prompt.
 CONTEXT_CHAR_BUDGET = max(1000, int((NUM_CTX - NUM_PREDICT - 256) * 3.5))
 
+# ---------------------------------------------------------------------------
+# Real-time awareness
+# ---------------------------------------------------------------------------
+TIMEZONE = os.environ.get("LOCALGPT_TIMEZONE", "Asia/Kolkata")
+LOCATION = os.environ.get("LOCALGPT_LOCATION", "Pune, India")  # configurable
+ENABLE_WEB_SEARCH = os.environ.get("LOCALGPT_ENABLE_WEB_SEARCH", "0") == "1"
+
 SYSTEM_PROMPT = os.environ.get(
     "LOCALGPT_SYSTEM_PROMPT",
     "You are LocalGPT, a helpful, intelligent, and friendly personal AI "

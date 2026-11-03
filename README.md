@@ -26,6 +26,8 @@ Browser  ->  Flask (127.0.0.1:5000)  ->  Ollama (127.0.0.1:11434)  ->  llama3.2:
 - Friendly error handling for offline Ollama, missing models, timeouts, and invalid input
 - Localhost-only binding and a localhost-only API guard
 - No CDN dependencies: every frontend asset is served locally
+- **Real-time awareness**: Local date/time, timezone detection, date/time calculations, timezone conversion
+- **Optional web search**: Free web search for current external information (disabled by default, local-first)
 
 ---
 
@@ -169,6 +171,9 @@ All settings can be overridden with environment variables. Defaults are tuned fo
 | `LOCALGPT_DB` | `database/localgpt.db` | SQLite database path. |
 | `LOCALGPT_SYSTEM_PROMPT` | built-in | Override the assistant's system prompt. |
 | `LOCALGPT_DEBUG` | `0` | Set to `1` for Flask debug mode. |
+| `LOCALGPT_TIMEZONE` | `Asia/Kolkata` | Timezone for real-time awareness (IANA format). |
+| `LOCALGPT_LOCATION` | `Pune, India` | Configurable location shown in context. |
+| `LOCALGPT_ENABLE_WEB_SEARCH` | `0` | Set to `1` to enable optional web search. |
 
 Example (Windows Command Prompt):
 

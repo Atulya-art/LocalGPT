@@ -419,6 +419,39 @@ button:disabled { cursor: not-allowed; }
 }
 .model-pill span:last-child { overflow: hidden; text-overflow: ellipsis; }
 
+.realtime-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px 0 8px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(52, 211, 153, 0.08), transparent);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: var(--text-primary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.web-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.web-pill[data-state="enabled"] {
+  border-color: rgba(96, 165, 250, 0.5);
+  color: var(--text-primary);
+}
+
 /* ---------- Chat area ---------- */
 .chat-scroll {
   flex: 1;

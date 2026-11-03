@@ -32,6 +32,9 @@
     abortController: null,
     creatingPromise: null,
     model: "llama3.2:3b",
+    realtime: null,
+    webSearchEnabled: false,
+    webSearchAvailable: false,
   };
 
   const el = {};
@@ -52,6 +55,11 @@
     el.statusDetail = $("status-detail");
     el.modelName = $("model-name");
     el.modelDot = $("model-dot");
+    el.realtimePill = $("realtime-pill");
+    el.realtimeText = $("realtime-text");
+    el.realtimeDot = $("realtime-dot");
+    el.webPill = $("web-pill");
+    el.webStatus = $("web-status");
     el.chatTitle = $("chat-title");
     el.chatSubtitle = $("chat-subtitle");
     el.clearChat = $("clear-chat");
@@ -742,6 +750,32 @@
     try {
       const status = await api("/api/status" + (force ? "?force=1" : ""));
       applyStatus(status);
+      // Also load config for realtime/web search
+      try {
+        const cfg = await api("/api/config");
+        if (cfg && cfg.realtime) {
+          state.realtime = cfg.realtime;
+          if (el.realtimeText) {
+            el.realtimeText.textContent = (cfg.realtime.time || "--:--") + " \u00b7 " + (cfg.realtime.day || "");
+          }
+        }
+        if (typeof cfg.web_search_enabled !== "undefined") {
+          state.webSearchEnabled = cfg.web_search_enabled;
+          state.webSearchAvailable = cfg.web_search_available;
+          if (el.webPill && el.webStatus) {
+            if (cfg.web_search_enabled && cfg.web_search_available) {
+              el.webPill.dataset.state = "enabled";
+              el.webStatus.textContent = "On";
+            } else if (cfg.web_search_enabled) {
+              el.webPill.dataset.state = "enabled";
+              el.webStatus.textContent = "Limited";
+            } else {
+              el.webPill.dataset.state = "disabled";
+              el.webStatus.textContent = "Off";
+            }
+          }
+        }
+      } catch (e) { /* ignore */ }
       if (force && !silent) {
         if (status.online && status.model_installed) toast("Ollama is connected.", "success", 2600);
         else if (status.online) toast("Ollama is running, but " + state.model + " is not installed.", "warning");
@@ -751,6 +785,18 @@
       setStatus("offline", "Server unreachable", "Is app.py running?");
       if (force && !silent) toast(err.message, "error");
     }
+  }
+
+  async function updateRealtime() {
+    try {
+      const data = await api("/api/time");
+      if (data && data.ok) {
+        state.realtime = data;
+        if (el.realtimeText) {
+          el.realtimeText.textContent = (data.time || "--:--") + " \u00b7 " + (data.day || "");
+        }
+      }
+    } catch (e) { /* ignore */ }
   }
 
   /* ------------------------------------------------------------------ */
@@ -1428,8 +1474,12 @@
     setStreamingUi(false);
 
     refreshStatus(false, true);
+    updateRealtime();
     setInterval(function () {
-      if (!document.hidden) refreshStatus(false, true);
+      if (!document.hidden) {
+        refreshStatus(false, true);
+        updateRealtime();
+      }
     }, 20000);
 
     try {
